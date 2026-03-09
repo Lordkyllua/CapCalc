@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CapCalc — Calculadora de Capacitores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Fondo animado -->
+  <canvas id="bgCanvas"></canvas>
+  <div class="noise"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="1" y="8" width="4" height="12" rx="1" fill="#00e5ff"/>
+          <rect x="23" y="8" width="4" height="12" rx="1" fill="#00e5ff"/>
+          <line x1="5" y1="14" x2="10" y2="14" stroke="#00e5ff" stroke-width="2"/>
+          <line x1="18" y1="14" x2="23" y2="14" stroke="#00e5ff" stroke-width="2"/>
+          <rect x="10" y="6" width="8" height="16" rx="1" fill="none" stroke="#ffab00" stroke-width="1.5"/>
+          <line x1="14" y1="6" x2="14" y2="22" stroke="#ffab00" stroke-width="1" stroke-dasharray="2 2"/>
+        </svg>
+        <span class="logo-text">Cap<span>Calc</span></span>
+      </div>
+      <nav class="nav">
+        <button class="nav-btn active" data-tab="calc">Calculadora</button>
+        <button class="nav-btn" data-tab="history">Historial</button>
+        <button class="nav-btn" data-tab="info">Referencia</button>
+      </nav>
+      <div class="header-right">
+        <div class="status-dot"></div>
+        <span class="status-text">v1.0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── TAB: CALCULADORA ── -->
+    <section class="tab-panel active" id="tab-calc">
+      <div class="calc-layout">
+
+        <!-- Panel izquierdo: input -->
+        <div class="panel panel-input" id="panelInput">
+          <div class="panel-tag">INPUT</div>
+
+          <h1 class="title">Calculadora de<br><em>Capacitor</em></h1>
+          <p class="tagline">Determiná la capacitancia a partir de la corriente</p>
+
+          <div class="formula-display">
+            <div class="formula-part">
+              <span class="f-var">I</span>
+              <span class="f-label">Corriente (A)</span>
+            </div>
+            <div class="f-op">÷</div>
+            <div class="formula-part">
+              <span class="f-const">0.07</span>
+              <span class="f-label">Constante</span>
+            </div>
+            <div class="f-op">=</div>
+            <div class="formula-part">
+              <span class="f-result">C</span>
+              <span class="f-label">Capacitancia (μF)</span>
+            </div>
+          </div>
+
+          <div class="input-section">
+            <label class="field-label" for="ampInput">Corriente de entrada</label>
+            <div class="input-row">
+              <div class="input-wrap">
+                <input
+                  type="number"
+                  id="ampInput"
+                  placeholder="0.000"
+                  min="0"
+                  step="any"
+                  autocomplete="off"
+                />
+                <span class="input-unit">A</span>
+                <div class="input-glow"></div>
+              </div>
+              <button class="calc-btn" id="calcBtn">
+                <span class="btn-text">Calcular</span>
+                <svg class="btn-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M3 9h12M10 4l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <p class="error-msg" id="errorMsg">⚠ Ingresá un valor numérico mayor a cero</p>
+          </div>
+
+          <div class="presets">
+            <span class="presets-label">Valores rápidos:</span>
+            <button class="preset-btn" data-val="0.1">0.1 A</button>
+            <button class="preset-btn" data-val="0.5">0.5 A</button>
+            <button class="preset-btn" data-val="1">1 A</button>
+            <button class="preset-btn" data-val="2.5">2.5 A</button>
+            <button class="preset-btn" data-val="5">5 A</button>
+          </div>
+        </div>
+
+        <!-- Panel derecho: resultado -->
+        <div class="panel panel-result" id="panelResult">
+          <div class="panel-tag">OUTPUT</div>
+          <div class="result-empty" id="resultEmpty">
+            <div class="empty-icon">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" stroke="#1c2e45" stroke-width="1.5"/>
+                <rect x="14" y="24" width="8" height="16" rx="2" fill="none" stroke="#1c2e45" stroke-width="1.5"/>
+                <rect x="42" y="24" width="8" height="16" rx="2" fill="none" stroke="#1c2e45" stroke-width="1.5"/>
+                <line x1="22" y1="32" x2="28" y2="32" stroke="#1c2e45" stroke-width="1.5"/>
+                <line x1="36" y1="32" x2="42" y2="32" stroke="#1c2e45" stroke-width="1.5"/>
+                <line x1="28" y1="26" x2="36" y2="26" stroke="#1c2e45" stroke-width="1.5"/>
+                <line x1="28" y1="38" x2="36" y2="38" stroke="#1c2e45" stroke-width="1.5"/>
+                <line x1="28" y1="26" x2="28" y2="38" stroke="#1c2e45" stroke-width="1.5"/>
+                <line x1="36" y1="26" x2="36" y2="38" stroke="#1c2e45" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <p>Ingresá un valor para<br>ver el resultado</p>
+          </div>
+
+          <div class="result-data" id="resultData">
+            <div class="result-input-echo" id="inputEcho">— A</div>
+
+            <div class="result-main-wrap">
+              <div class="result-label-sm">CAPACITANCIA</div>
+              <div class="result-value" id="mainResult">—</div>
+              <div class="result-unit-main">microfaradios (μF)</div>
+            </div>
+
+            <div class="conversions-grid">
+              <div class="conv-card" id="convMF">
+                <div class="conv-icon">mF</div>
+                <div class="conv-value" id="mfResult">—</div>
+                <div class="conv-name">Millifaradios</div>
+              </div>
+              <div class="conv-card" id="convF">
+                <div class="conv-icon">F</div>
+                <div class="conv-value" id="fResult">—</div>
+                <div class="conv-name">Faradios</div>
+              </div>
+              <div class="conv-card" id="convNF">
+                <div class="conv-icon">nF</div>
+                <div class="conv-value" id="nfResult">—</div>
+                <div class="conv-name">Nanofaradios</div>
+              </div>
+              <div class="conv-card" id="convPF">
+                <div class="conv-icon">pF</div>
+                <div class="conv-value" id="pfResult">—</div>
+                <div class="conv-name">Picofaradios</div>
+              </div>
+            </div>
+
+            <div class="result-actions">
+              <button class="action-btn" id="saveBtn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h8l2 2v8H2V2z" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="8" width="6" height="4" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="2" width="5" height="3" stroke="currentColor" stroke-width="1.2"/></svg>
+                Guardar
+              </button>
+              <button class="action-btn" id="copyBtn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M2 10V2h8" stroke="currentColor" stroke-width="1.2"/></svg>
+                Copiar
+              </button>
+              <button class="action-btn reset" id="resetBtn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-3" stroke="currentColor" stroke-width="1.2"/><path d="M2 2v3h3" stroke="currentColor" stroke-width="1.2"/></svg>
+                Nuevo
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── TAB: HISTORIAL ── -->
+    <section class="tab-panel" id="tab-history">
+      <div class="page-header">
+        <h2>Historial de cálculos</h2>
+        <button class="clear-btn" id="clearHistory">Limpiar todo</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state">
+          <p>No hay cálculos guardados aún.</p>
+          <p class="empty-sub">Realizá un cálculo y presioná "Guardar".</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TAB: REFERENCIA ── -->
+    <section class="tab-panel" id="tab-info">
+      <div class="page-header">
+        <h2>Referencia técnica</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>¿Qué es un capacitor?</h3>
+          <p>Un capacitor (o condensador) es un componente electrónico que almacena energía en forma de campo eléctrico. Se compone de dos conductores separados por un dieléctrico.</p>
+        </div>
+        <div class="info-card">
+          <h3>La fórmula</h3>
+          <p>La relación entre corriente y capacitancia viene de:</p>
+          <div class="formula-block">I = C · (dV/dt)</div>
+          <p>Para una tasa de cambio de voltaje de 0.07 V/s, se simplifica a <strong>C (μF) = I ÷ 0.07</strong></p>
+        </div>
+        <div class="info-card">
+          <h3>Unidades de capacitancia</h3>
+          <table class="ref-table">
+            <tr><th>Símbolo</th><th>Nombre</th><th>Equivalencia</th></tr>
+            <tr><td>F</td><td>Faradio</td><td>1 F</td></tr>
+            <tr><td>mF</td><td>Millifaradio</td><td>10⁻³ F</td></tr>
+            <tr><td>μF</td><td>Microfaradio</td><td>10⁻⁶ F</td></tr>
+            <tr><td>nF</td><td>Nanofaradio</td><td>10⁻⁹ F</td></tr>
+            <tr><td>pF</td><td>Picofaradio</td><td>10⁻¹² F</td></tr>
+          </table>
+        </div>
+        <div class="info-card">
+          <h3>Valores típicos</h3>
+          <table class="ref-table">
+            <tr><th>Corriente (A)</th><th>Capacitancia (μF)</th><th>Uso típico</th></tr>
+            <tr><td>0.07</td><td>1 μF</td><td>Filtro de señal</td></tr>
+            <tr><td>0.35</td><td>5 μF</td><td>Motor pequeño</td></tr>
+            <tr><td>0.70</td><td>10 μF</td><td>Fuente de alimentación</td></tr>
+            <tr><td>3.50</td><td>50 μF</td><td>Motor AC</td></tr>
+            <tr><td>7.00</td><td>100 μF</td><td>Corrección de factor de potencia</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="calculator.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
