@@ -1,244 +1,436 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CapCalc — Calculadora de Capacitores</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#00e5ff"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="CapCalc"/>
+  <meta name="description" content="Calculadora profesional de capacitores — DC Electricista"/>
+  <title>CapCalc — DC Electricista</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+<canvas id="bgCanvas"></canvas>
 
-  <!-- Fondo animado -->
-  <canvas id="bgCanvas"></canvas>
-  <div class="noise"></div>
+<!-- ── INSTALL BANNER ── -->
+<div class="install-banner" id="installBanner">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <strong>Instalá la app</strong>
+    <span>Funciona sin internet · Acceso rápido</span>
+  </div>
+  <button class="install-btn" id="installBtn">Instalar</button>
+  <button class="install-close" id="installClose">✕</button>
+</div>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="logo">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <rect x="1" y="8" width="4" height="12" rx="1" fill="#00e5ff"/>
-          <rect x="23" y="8" width="4" height="12" rx="1" fill="#00e5ff"/>
-          <line x1="5" y1="14" x2="10" y2="14" stroke="#00e5ff" stroke-width="2"/>
-          <line x1="18" y1="14" x2="23" y2="14" stroke="#00e5ff" stroke-width="2"/>
-          <rect x="10" y="6" width="8" height="16" rx="1" fill="none" stroke="#ffab00" stroke-width="1.5"/>
-          <line x1="14" y1="6" x2="14" y2="22" stroke="#ffab00" stroke-width="1" stroke-dasharray="2 2"/>
-        </svg>
-        <span class="logo-text">Cap<span>Calc</span></span>
-      </div>
-      <nav class="nav">
-        <button class="nav-btn active" data-tab="calc">Calculadora</button>
-        <button class="nav-btn" data-tab="history">Historial</button>
-        <button class="nav-btn" data-tab="info">Referencia</button>
-      </nav>
-      <div class="header-right">
-        <div class="status-dot"></div>
-        <span class="status-text">v1.0</span>
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <rect x="2" y="9" width="5" height="14" rx="1.5" fill="#00e5ff"/>
+        <rect x="25" y="9" width="5" height="14" rx="1.5" fill="#00e5ff"/>
+        <line x1="7" y1="16" x2="12" y2="16" stroke="#00e5ff" stroke-width="2.5"/>
+        <line x1="20" y1="16" x2="25" y2="16" stroke="#00e5ff" stroke-width="2.5"/>
+        <rect x="12" y="7" width="8" height="18" rx="1" fill="none" stroke="#ffab00" stroke-width="1.8"/>
+        <line x1="16" y1="7" x2="16" y2="25" stroke="#ffab0060" stroke-width="1" stroke-dasharray="2.5 2"/>
+      </svg>
+      <div class="logo-words">
+        <span class="logo-main">Cap<em>Calc</em></span>
+        <span class="logo-sub">DC Electricista</span>
       </div>
     </div>
-  </header>
+    <div class="header-right">
+      <div class="offline-badge" id="offlineBadge">SIN CONEXIÓN</div>
+      <div class="status-wrap">
+        <div class="status-dot"></div>
+      </div>
+    </div>
+  </div>
+</header>
 
-  <!-- Main -->
-  <main class="main">
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bn-btn active" data-tab="calc">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><line x1="9" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="1.6"/><line x1="12" y1="6" x2="12" y2="12" stroke="currentColor" stroke-width="1.6"/><line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="1.6"/><line x1="9" y1="18" x2="12" y2="18" stroke="currentColor" stroke-width="1.6"/></svg>
+    <span>Calcular</span>
+  </button>
+  <button class="bn-btn" data-tab="tools">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="1.6"/></svg>
+    <span>Herramientas</span>
+  </button>
+  <button class="bn-btn" data-tab="history">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><polyline points="12 7 12 12 15 15" stroke="currentColor" stroke-width="1.6"/></svg>
+    <span>Historial</span>
+  </button>
+  <button class="bn-btn" data-tab="ref">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="1.6"/></svg>
+    <span>Referencia</span>
+  </button>
+</nav>
 
-    <!-- ── TAB: CALCULADORA ── -->
-    <section class="tab-panel active" id="tab-calc">
-      <div class="calc-layout">
+<!-- ── MAIN ── -->
+<main class="main" id="mainContent">
 
-        <!-- Panel izquierdo: input -->
-        <div class="panel panel-input" id="panelInput">
-          <div class="panel-tag">INPUT</div>
+  <!-- ════ TAB: CALCULADORA ════ -->
+  <section class="tab-panel active" id="tab-calc">
 
-          <h1 class="title">Calculadora de<br><em>Capacitor</em></h1>
-          <p class="tagline">Determiná la capacitancia a partir de la corriente</p>
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="amps">A → μF</button>
+      <button class="mode-btn" data-mode="uf">μF → A</button>
+      <button class="mode-btn" data-mode="convert">Convertir</button>
+    </div>
 
-          <div class="formula-display">
-            <div class="formula-part">
-              <span class="f-var">I</span>
-              <span class="f-label">Corriente (A)</span>
-            </div>
-            <div class="f-op">÷</div>
-            <div class="formula-part">
-              <span class="f-const">0.07</span>
-              <span class="f-label">Constante</span>
-            </div>
-            <div class="f-op">=</div>
-            <div class="formula-part">
-              <span class="f-result">C</span>
-              <span class="f-label">Capacitancia (μF)</span>
-            </div>
-          </div>
+    <!-- Input card -->
+    <div class="card" id="inputCard">
+      <div class="card-label">ENTRADA</div>
 
-          <div class="input-section">
-            <label class="field-label" for="ampInput">Corriente de entrada</label>
-            <div class="input-row">
-              <div class="input-wrap">
-                <input
-                  type="number"
-                  id="ampInput"
-                  placeholder="0.000"
-                  min="0"
-                  step="any"
-                  autocomplete="off"
-                />
-                <span class="input-unit">A</span>
-                <div class="input-glow"></div>
-              </div>
-              <button class="calc-btn" id="calcBtn">
-                <span class="btn-text">Calcular</span>
-                <svg class="btn-icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M3 9h12M10 4l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
-            </div>
-            <p class="error-msg" id="errorMsg">⚠ Ingresá un valor numérico mayor a cero</p>
-          </div>
-
-          <div class="presets">
-            <span class="presets-label">Valores rápidos:</span>
-            <button class="preset-btn" data-val="0.1">0.1 A</button>
-            <button class="preset-btn" data-val="0.5">0.5 A</button>
-            <button class="preset-btn" data-val="1">1 A</button>
-            <button class="preset-btn" data-val="2.5">2.5 A</button>
-            <button class="preset-btn" data-val="5">5 A</button>
+      <!-- Mode: Amps → uF -->
+      <div class="mode-panel active" id="mode-amps">
+        <div class="formula-pill">
+          <span class="fp-var">I (A)</span>
+          <span class="fp-op">÷</span>
+          <span class="fp-const">0.07</span>
+          <span class="fp-op">=</span>
+          <span class="fp-res">C (μF)</span>
+        </div>
+        <div class="field">
+          <label class="lbl" for="ampInput">Corriente</label>
+          <div class="input-wrap">
+            <input type="number" id="ampInput" placeholder="0.000" min="0" step="any" inputmode="decimal"/>
+            <span class="input-unit">A</span>
           </div>
         </div>
+      </div>
 
-        <!-- Panel derecho: resultado -->
-        <div class="panel panel-result" id="panelResult">
-          <div class="panel-tag">OUTPUT</div>
-          <div class="result-empty" id="resultEmpty">
-            <div class="empty-icon">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" stroke="#1c2e45" stroke-width="1.5"/>
-                <rect x="14" y="24" width="8" height="16" rx="2" fill="none" stroke="#1c2e45" stroke-width="1.5"/>
-                <rect x="42" y="24" width="8" height="16" rx="2" fill="none" stroke="#1c2e45" stroke-width="1.5"/>
-                <line x1="22" y1="32" x2="28" y2="32" stroke="#1c2e45" stroke-width="1.5"/>
-                <line x1="36" y1="32" x2="42" y2="32" stroke="#1c2e45" stroke-width="1.5"/>
-                <line x1="28" y1="26" x2="36" y2="26" stroke="#1c2e45" stroke-width="1.5"/>
-                <line x1="28" y1="38" x2="36" y2="38" stroke="#1c2e45" stroke-width="1.5"/>
-                <line x1="28" y1="26" x2="28" y2="38" stroke="#1c2e45" stroke-width="1.5"/>
-                <line x1="36" y1="26" x2="36" y2="38" stroke="#1c2e45" stroke-width="1.5"/>
-              </svg>
-            </div>
-            <p>Ingresá un valor para<br>ver el resultado</p>
-          </div>
-
-          <div class="result-data" id="resultData">
-            <div class="result-input-echo" id="inputEcho">— A</div>
-
-            <div class="result-main-wrap">
-              <div class="result-label-sm">CAPACITANCIA</div>
-              <div class="result-value" id="mainResult">—</div>
-              <div class="result-unit-main">microfaradios (μF)</div>
-            </div>
-
-            <div class="conversions-grid">
-              <div class="conv-card" id="convMF">
-                <div class="conv-icon">mF</div>
-                <div class="conv-value" id="mfResult">—</div>
-                <div class="conv-name">Millifaradios</div>
-              </div>
-              <div class="conv-card" id="convF">
-                <div class="conv-icon">F</div>
-                <div class="conv-value" id="fResult">—</div>
-                <div class="conv-name">Faradios</div>
-              </div>
-              <div class="conv-card" id="convNF">
-                <div class="conv-icon">nF</div>
-                <div class="conv-value" id="nfResult">—</div>
-                <div class="conv-name">Nanofaradios</div>
-              </div>
-              <div class="conv-card" id="convPF">
-                <div class="conv-icon">pF</div>
-                <div class="conv-value" id="pfResult">—</div>
-                <div class="conv-name">Picofaradios</div>
-              </div>
-            </div>
-
-            <div class="result-actions">
-              <button class="action-btn" id="saveBtn">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h8l2 2v8H2V2z" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="8" width="6" height="4" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="2" width="5" height="3" stroke="currentColor" stroke-width="1.2"/></svg>
-                Guardar
-              </button>
-              <button class="action-btn" id="copyBtn">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M2 10V2h8" stroke="currentColor" stroke-width="1.2"/></svg>
-                Copiar
-              </button>
-              <button class="action-btn reset" id="resetBtn">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-3" stroke="currentColor" stroke-width="1.2"/><path d="M2 2v3h3" stroke="currentColor" stroke-width="1.2"/></svg>
-                Nuevo
-              </button>
-            </div>
+      <!-- Mode: uF → Amps -->
+      <div class="mode-panel" id="mode-uf">
+        <div class="formula-pill">
+          <span class="fp-var">C (μF)</span>
+          <span class="fp-op">×</span>
+          <span class="fp-const">0.07</span>
+          <span class="fp-op">=</span>
+          <span class="fp-res">I (A)</span>
+        </div>
+        <div class="field">
+          <label class="lbl" for="ufInput">Capacitancia</label>
+          <div class="input-wrap">
+            <input type="number" id="ufInput" placeholder="0.000" min="0" step="any" inputmode="decimal"/>
+            <span class="input-unit">μF</span>
           </div>
         </div>
-
       </div>
-    </section>
 
-    <!-- ── TAB: HISTORIAL ── -->
-    <section class="tab-panel" id="tab-history">
-      <div class="page-header">
-        <h2>Historial de cálculos</h2>
-        <button class="clear-btn" id="clearHistory">Limpiar todo</button>
-      </div>
-      <div class="history-list" id="historyList">
-        <div class="empty-state">
-          <p>No hay cálculos guardados aún.</p>
-          <p class="empty-sub">Realizá un cálculo y presioná "Guardar".</p>
+      <!-- Mode: Convert -->
+      <div class="mode-panel" id="mode-convert">
+        <div class="field">
+          <label class="lbl" for="convInput">Valor</label>
+          <div class="input-wrap">
+            <input type="number" id="convInput" placeholder="0.000" min="0" step="any" inputmode="decimal"/>
+            <select id="convUnit" class="unit-select">
+              <option value="F">F</option>
+              <option value="mF">mF</option>
+              <option value="uF" selected>μF</option>
+              <option value="nF">nF</option>
+              <option value="pF">pF</option>
+            </select>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- ── TAB: REFERENCIA ── -->
-    <section class="tab-panel" id="tab-info">
-      <div class="page-header">
-        <h2>Referencia técnica</h2>
-      </div>
-      <div class="info-grid">
-        <div class="info-card">
-          <h3>¿Qué es un capacitor?</h3>
-          <p>Un capacitor (o condensador) es un componente electrónico que almacena energía en forma de campo eléctrico. Se compone de dos conductores separados por un dieléctrico.</p>
-        </div>
-        <div class="info-card">
-          <h3>La fórmula</h3>
-          <p>La relación entre corriente y capacitancia viene de:</p>
-          <div class="formula-block">I = C · (dV/dt)</div>
-          <p>Para una tasa de cambio de voltaje de 0.07 V/s, se simplifica a <strong>C (μF) = I ÷ 0.07</strong></p>
-        </div>
-        <div class="info-card">
-          <h3>Unidades de capacitancia</h3>
-          <table class="ref-table">
-            <tr><th>Símbolo</th><th>Nombre</th><th>Equivalencia</th></tr>
-            <tr><td>F</td><td>Faradio</td><td>1 F</td></tr>
-            <tr><td>mF</td><td>Millifaradio</td><td>10⁻³ F</td></tr>
-            <tr><td>μF</td><td>Microfaradio</td><td>10⁻⁶ F</td></tr>
-            <tr><td>nF</td><td>Nanofaradio</td><td>10⁻⁹ F</td></tr>
-            <tr><td>pF</td><td>Picofaradio</td><td>10⁻¹² F</td></tr>
-          </table>
-        </div>
-        <div class="info-card">
-          <h3>Valores típicos</h3>
-          <table class="ref-table">
-            <tr><th>Corriente (A)</th><th>Capacitancia (μF)</th><th>Uso típico</th></tr>
-            <tr><td>0.07</td><td>1 μF</td><td>Filtro de señal</td></tr>
-            <tr><td>0.35</td><td>5 μF</td><td>Motor pequeño</td></tr>
-            <tr><td>0.70</td><td>10 μF</td><td>Fuente de alimentación</td></tr>
-            <tr><td>3.50</td><td>50 μF</td><td>Motor AC</td></tr>
-            <tr><td>7.00</td><td>100 μF</td><td>Corrección de factor de potencia</td></tr>
-          </table>
+      <p class="error-msg" id="errorMsg">⚠ Ingresá un valor mayor a cero</p>
+
+      <button class="calc-btn" id="calcBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Calcular
+      </button>
+
+      <!-- Presets -->
+      <div class="presets-section">
+        <span class="presets-label">Valores rápidos (A):</span>
+        <div class="presets-grid">
+          <button class="preset" data-val="0.07">0.07</button>
+          <button class="preset" data-val="0.1">0.1</button>
+          <button class="preset" data-val="0.35">0.35</button>
+          <button class="preset" data-val="0.5">0.5</button>
+          <button class="preset" data-val="0.7">0.7</button>
+          <button class="preset" data-val="1">1</button>
+          <button class="preset" data-val="2.5">2.5</button>
+          <button class="preset" data-val="5">5</button>
         </div>
       </div>
-    </section>
+    </div>
 
-  </main>
+    <!-- Result card -->
+    <div class="card result-card" id="resultCard" style="display:none">
+      <div class="card-label">RESULTADO</div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
+      <div class="result-hero">
+        <div class="result-echo" id="resultEcho">—</div>
+        <div class="result-big" id="resultBig">—</div>
+        <div class="result-unit-big" id="resultUnitBig">μF</div>
+      </div>
 
-  <script src="calculator.js"></script>
-  <script src="app.js"></script>
+      <div class="conv-grid" id="convGrid"></div>
+
+      <div class="e12-row" id="e12Row"></div>
+
+      <div class="result-tabs">
+        <button class="rtab active" data-rtab="energy">Energía</button>
+        <button class="rtab" data-rtab="reactance">Reactancia</button>
+      </div>
+      <div class="rtab-panel active" id="rtab-energy" ></div>
+      <div class="rtab-panel" id="rtab-reactance"></div>
+
+      <div class="result-actions">
+        <button class="act-btn primary" id="saveBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="1.8"/><polyline points="17 21 17 13 7 13 7 21" stroke="currentColor" stroke-width="1.8"/><polyline points="7 3 7 8 15 8" stroke="currentColor" stroke-width="1.8"/></svg>
+          Guardar
+        </button>
+        <button class="act-btn" id="copyBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8"/></svg>
+          Copiar
+        </button>
+        <button class="act-btn warn" id="resetBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polyline points="1 4 1 10 7 10" stroke="currentColor" stroke-width="1.8"/><path d="M3.51 15a9 9 0 1 0 .49-4" stroke="currentColor" stroke-width="1.8"/></svg>
+          Nuevo
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ TAB: HERRAMIENTAS ════ -->
+  <section class="tab-panel" id="tab-tools">
+    <h2 class="page-title">Herramientas</h2>
+
+    <!-- RC Timer -->
+    <div class="card tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">⏱</div>
+        <div>
+          <div class="tool-title">Tiempo de carga/descarga RC</div>
+          <div class="tool-desc">Calcula τ (tau) y tiempos de carga</div>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="field-row">
+          <div class="field">
+            <label class="lbl">Resistencia</label>
+            <div class="input-wrap">
+              <input type="number" id="rcR" placeholder="1000" min="0" step="any" inputmode="decimal"/>
+              <span class="input-unit">Ω</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl">Capacitancia</label>
+            <div class="input-wrap">
+              <input type="number" id="rcC" placeholder="100" min="0" step="any" inputmode="decimal"/>
+              <span class="input-unit">μF</span>
+            </div>
+          </div>
+        </div>
+        <button class="calc-btn small" id="rcCalcBtn">Calcular RC</button>
+        <div class="tool-result" id="rcResult"></div>
+      </div>
+    </div>
+
+    <!-- Serie / Paralelo -->
+    <div class="card tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">🔗</div>
+        <div>
+          <div class="tool-title">Capacitores en serie / paralelo</div>
+          <div class="tool-desc">Ingresá hasta 6 valores en μF</div>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="cap-inputs" id="capInputs">
+          <div class="cap-row"><span class="cap-lbl">C1</span><input class="cap-in" type="number" placeholder="μF" min="0" step="any" inputmode="decimal"/></div>
+          <div class="cap-row"><span class="cap-lbl">C2</span><input class="cap-in" type="number" placeholder="μF" min="0" step="any" inputmode="decimal"/></div>
+          <div class="cap-row"><span class="cap-lbl">C3</span><input class="cap-in" type="number" placeholder="μF" min="0" step="any" inputmode="decimal"/></div>
+        </div>
+        <button class="add-cap-btn" id="addCapBtn">+ Agregar capacitor</button>
+        <div class="sp-btns">
+          <button class="calc-btn small" id="seriesBtn">En serie</button>
+          <button class="calc-btn small amber" id="parallelBtn">En paralelo</button>
+        </div>
+        <div class="tool-result" id="spResult"></div>
+      </div>
+    </div>
+
+    <!-- Reactancia -->
+    <div class="card tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">〜</div>
+        <div>
+          <div class="tool-title">Reactancia capacitiva</div>
+          <div class="tool-desc">Xc = 1 / (2π · f · C)</div>
+        </div>
+      </div>
+      <div class="tool-body">
+        <div class="field-row">
+          <div class="field">
+            <label class="lbl">Capacitancia</label>
+            <div class="input-wrap">
+              <input type="number" id="xcC" placeholder="100" min="0" step="any" inputmode="decimal"/>
+              <span class="input-unit">μF</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl">Frecuencia</label>
+            <div class="input-wrap">
+              <input type="number" id="xcF" placeholder="50" min="0" step="any" value="50" inputmode="decimal"/>
+              <span class="input-unit">Hz</span>
+            </div>
+          </div>
+        </div>
+        <div class="freq-presets">
+          <button class="freq-preset" data-f="50">50 Hz</button>
+          <button class="freq-preset" data-f="60">60 Hz</button>
+          <button class="freq-preset" data-f="400">400 Hz</button>
+          <button class="freq-preset" data-f="1000">1 kHz</button>
+        </div>
+        <button class="calc-btn small" id="xcCalcBtn">Calcular Xc</button>
+        <div class="tool-result" id="xcResult"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════ TAB: HISTORIAL ════ -->
+  <section class="tab-panel" id="tab-history">
+    <div class="page-header-row">
+      <h2 class="page-title">Historial</h2>
+      <div class="header-actions">
+        <button class="icon-btn" id="exportBtn" title="Exportar CSV">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
+        <button class="icon-btn danger" id="clearHistBtn" title="Limpiar historial">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="1.8"/><path d="M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.8"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.8"/><path d="M9 6V4h6v2" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.8"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="1.8"/></svg>
+      <input type="text" id="histSearch" placeholder="Buscar por valor..."/>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </section>
+
+  <!-- ════ TAB: REFERENCIA ════ -->
+  <section class="tab-panel" id="tab-ref">
+    <h2 class="page-title">Referencia técnica</h2>
+
+    <div class="ref-group">
+      <div class="ref-group-title">Fórmula base</div>
+      <div class="card ref-card">
+        <div class="formula-big">C (μF) = I (A) ÷ 0.07</div>
+        <p class="ref-text">Derivada de I = C · (dV/dt) asumiendo una tasa de cambio de voltaje de 0.07 V/μs, típica en aplicaciones de motores y fuentes conmutadas.</p>
+      </div>
+    </div>
+
+    <div class="ref-group">
+      <div class="ref-group-title">Unidades de capacitancia</div>
+      <div class="card ref-card no-pad">
+        <table class="ref-table">
+          <thead><tr><th>Símbolo</th><th>Nombre</th><th>Equivalencia</th></tr></thead>
+          <tbody>
+            <tr><td class="hl">F</td><td>Faradio</td><td>1 F</td></tr>
+            <tr><td class="hl">mF</td><td>Millifaradio</td><td>10⁻³ F</td></tr>
+            <tr><td class="hl">μF</td><td>Microfaradio</td><td>10⁻⁶ F</td></tr>
+            <tr><td class="hl">nF</td><td>Nanofaradio</td><td>10⁻⁹ F</td></tr>
+            <tr><td class="hl">pF</td><td>Picofaradio</td><td>10⁻¹² F</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ref-group">
+      <div class="ref-group-title">Valores típicos por aplicación</div>
+      <div class="card ref-card no-pad">
+        <table class="ref-table">
+          <thead><tr><th>Corriente (A)</th><th>Cap. (μF)</th><th>Aplicación</th></tr></thead>
+          <tbody>
+            <tr><td class="hl">0.07</td><td>1 μF</td><td>Filtro de señal</td></tr>
+            <tr><td class="hl">0.35</td><td>5 μF</td><td>Motor monofásico pequeño</td></tr>
+            <tr><td class="hl">0.70</td><td>10 μF</td><td>Fuente de alimentación</td></tr>
+            <tr><td class="hl">1.40</td><td>20 μF</td><td>Motor 0.5 HP</td></tr>
+            <tr><td class="hl">2.10</td><td>30 μF</td><td>Motor 1 HP</td></tr>
+            <tr><td class="hl">3.50</td><td>50 μF</td><td>Motor 2 HP</td></tr>
+            <tr><td class="hl">7.00</td><td>100 μF</td><td>Corrección factor potencia</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="ref-group">
+      <div class="ref-group-title">Tipos de capacitores</div>
+      <div class="types-grid">
+        <div class="card type-card">
+          <div class="type-icon">🔵</div>
+          <div class="type-name">Electrolítico</div>
+          <div class="type-range">1 μF – 100,000 μF</div>
+          <div class="type-use">Filtros, fuentes DC, audio</div>
+        </div>
+        <div class="card type-card">
+          <div class="type-icon">🟡</div>
+          <div class="type-name">Cerámico</div>
+          <div class="type-range">1 pF – 100 μF</div>
+          <div class="type-use">Desacople, RF, bypass</div>
+        </div>
+        <div class="card type-card">
+          <div class="type-icon">🟠</div>
+          <div class="type-name">Film / Poliéster</div>
+          <div class="type-range">1 nF – 100 μF</div>
+          <div class="type-use">Audio, motores AC, timing</div>
+        </div>
+        <div class="card type-card">
+          <div class="type-icon">⚡</div>
+          <div class="type-name">Supercapacitor</div>
+          <div class="type-range">0.1 F – 3000 F</div>
+          <div class="type-use">Almacenamiento energía, backup</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ref-group">
+      <div class="ref-group-title">Abreviaturas</div>
+      <div class="card ref-card no-pad">
+        <table class="ref-table">
+          <thead><tr><th>Sigla</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td class="hl">ESR</td><td>Resistencia Serie Equivalente</td></tr>
+            <tr><td class="hl">ESL</td><td>Inductancia Serie Equivalente</td></tr>
+            <tr><td class="hl">Vr</td><td>Voltaje de trabajo (rated)</td></tr>
+            <tr><td class="hl">Xc</td><td>Reactancia capacitiva</td></tr>
+            <tr><td class="hl">τ</td><td>Constante de tiempo RC</td></tr>
+            <tr><td class="hl">FP</td><td>Factor de potencia</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card branding-card">
+      <div class="brand-logo">⚡</div>
+      <div class="brand-name">DC Electricista</div>
+      <div class="brand-app">CapCalc v1.0</div>
+      <div class="brand-note">Herramienta profesional para electricistas</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="calculator.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
